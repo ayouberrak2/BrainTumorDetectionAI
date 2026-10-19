@@ -1,0 +1,33 @@
+# Environnement Python
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+
+# Configuration et secrets
+.env
+.env.*
+!.env.example
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Données médicales et datasets volumineux
+data/raw/*
+data/processed/*
+
+# Modèles entraînés
+artifacts/**/*.keras
+artifacts/**/*.h5
+artifacts/**/*.pt
+artifacts/**/*.onnx
+
+# Logs et résultats temporaires
+logs/
+mlruns/
+.pytest_cache/
+
+# Système et IDE
+.DS_Store
+Thumbs.db
+.vscode/

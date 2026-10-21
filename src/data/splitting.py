@@ -1,6 +1,7 @@
 import pandas as pd
 from sklearn.model_selection import train_test_split
-
+from pathlib import Path
+import shutil
 
 def split_dataset(manifest,):
     if manifest.empty:
@@ -26,3 +27,36 @@ def split_dataset(manifest,):
         val_df.reset_index(drop=True),
         test_df.reset_index(drop=True),
     )
+
+
+from pathlib import Path
+import shutil
+
+
+def export_classification_splits(splits,output_dir):
+    root = Path(output_dir)
+
+    for split_name, df in splits.items():
+
+        if split_name not in {"train", "valid", "test"}:
+            raise ValueError(f"Split inconnu : {split_name}")
+
+        for row in df.itertuples(index=False):
+            source = Path(row.path)
+
+            destination = (
+                root / split_name / row.label / source.name
+            )
+
+            destination.parent.mkdir(
+                parents=True,
+                exist_ok=True,
+            )
+
+            if destination.exists():
+                raise FileExistsError(
+                    f"Destination déjà existante : {destination}"
+                )
+
+            shutil.copy2(source, destination)
+

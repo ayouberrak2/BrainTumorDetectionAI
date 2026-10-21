@@ -1,0 +1,19 @@
+model:
+  architecture: googlenet
+  input_height: 224
+  input_width: 224
+  channels: 3
+  pretrained: true
+
+training:
+  batch_size: 32
+  epochs: 30
+  learning_rate: 0.001
+  optimizer: adam
+  loss: sparse_categorical_crossentropy
+  random_seed: 42
+
+callbacks:
+  early_stopping_patience: 5
+  reduce_lr_patience: 3
+

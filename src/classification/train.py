@@ -9,7 +9,7 @@ def train_googlenet(
     valid_ds,
     epochs: int = 30,
     output_dir: str = "artifacts/models",
-    patience: int = 5,
+    patience: int = 30,
 ):
     """
     Entraîne le modèle GoogLeNet préentraîné.

@@ -8,31 +8,48 @@ import kagglehub
 def build_googlenet(
     num_classes: int,
     input_shape: tuple = (224, 224, 3),
-    trainable_base: bool = False,
-    learning_rate: float = 1e-3,
+    trainable_base: bool = True,
+    learning_rate: float = 1e-5,
 ):
-    if num_classes < 2:
-        raise ValueError("num_classes doit être supérieur ou égal à 2.")
+    """
+    Construit GoogLeNet (Inception-v1) préentraîné
+    avec Fine-Tuning pour la classification des IRM.
+    """
 
-    # Télécharger le modèle GoogLeNet préentraîné
+    if num_classes < 2:
+        raise ValueError(
+            "num_classes doit être supérieur ou égal à 2."
+        )
+
+    # Télécharger GoogLeNet préentraîné sur ImageNet
     model_path = kagglehub.model_download(
         "google/inception-v1/tensorFlow2/feature-vector/1"
     )
 
-    # Backbone préentraîné
+    # Backbone GoogLeNet avec Fine-Tuning
     base_model = hub.KerasLayer(
         model_path,
         trainable=trainable_base,
-        name="googlenet_feature_extractor",
+        name="googlenet_backbone",
     )
 
-    # Entrée de l'image
-    inputs = keras.Input(shape=input_shape, name="image")
+    # Vérifier que le Fine-Tuning est disponible
+    if trainable_base and not base_model.trainable_weights:
+        raise ValueError(
+            "Ce modèle TF-Hub n'expose pas de poids "
+            "entraînables pour le Fine-Tuning."
+        )
+
+    # Entrée
+    inputs = keras.Input(
+        shape=input_shape,
+        name="image"
+    )
 
     # Extraction des caractéristiques
     x = base_model(inputs)
 
-    # Tête de classification
+    # Classification
     x = layers.Dense(
         256,
         activation="relu",
@@ -50,12 +67,14 @@ def build_googlenet(
         name="predictions",
     )(x)
 
+    # Construire le modèle
     model = keras.Model(
         inputs=inputs,
         outputs=outputs,
-        name="brainscan_googlenet",
+        name="brainscan_googlenet_finetuned",
     )
 
+    # Compilation
     model.compile(
         optimizer=keras.optimizers.Adam(
             learning_rate=learning_rate

@@ -1,0 +1,27 @@
+# Configuration simple d'entraînement YOLOv8 (IRM cérébrales)
+# Pour un GPU 24 Go : tu peux tester batch: 16 et imgsz: 640.
+# Sur CPU, réduire imgsz à 416 pour démarrer.
+model: yolov8n.pt         # YOLOv8 nano : léger pour commencer
+epochs: 50               # Maximum de passages sur train
+batch: 8                 # Nombre d'images par étape
+imgsz: 512               # Taille des images carrées
+optimizer: AdamW
+lr0: 0.001               # Learning rate initial
+patience: 15             # Early stopping si val ne s'améliore plus
+seed: 42
+workers: 0               # Simple et robuste sur Windows / Jupyter
+plots: true
+save: true
+
+# Augmentations modérées : adaptées à des images médicales
+# Ne pas créer de flips/montages irréalistes sans validation clinique.
+degrees: 5.0             # Rotation légère
+translate: 0.05          # Petit déplacement
+scale: 0.10              # Léger zoom
+fliplr: 0.0              # Pas de miroir horizontal
+flipud: 0.0              # Pas de miroir vertical
+mosaic: 0.0              # Pas de collage de 4 IRM
+mixup: 0.0
+hsv_h: 0.0               # Pas de changement de teinte
+hsv_s: 0.0               # Pas de changement de saturation
+hsv_v: 0.05              # Faible variation de luminosité

@@ -1,43 +1,38 @@
+"""Lecture et validation de fichiers d'annotations YOLO (simple)."""
 from pathlib import Path
 
 
-IMAGE_EXTENSIONS = {
-    ".jpg",
-    ".jpeg",
-    ".png",
-    ".bmp",
-}
+def read_yolo_label(label_path):
+    """Renvoie les objets [(id, x, y, w, h), ...].
 
+    Les coordonnées sont normalisées entre 0 et 1.
+    Un fichier vide est valide pour une image sans tumeur.
+    """
+    objects = []
+    content = Path(label_path).read_text(encoding="utf-8-sig")
 
-def check_image_label_pairs(images_dir,labels_dir ):
+    for line_number, line in enumerate(content.splitlines(), start=1):
+        if not line.strip():
+            continue
+        parts = line.split()
+        if len(parts) != 5:
+            raise ValueError(f"Ligne {line_number}: 5 valeurs attendues")
 
-    images_root = Path(images_dir)
-    labels_root = Path(labels_dir)
+        try:
+            # int('0.0') est refusé volontairement : YOLO attend un entier.
+            class_id = int(parts[0])
+            x, y, w, h = [float(value) for value in parts[1:]]
+        except ValueError as error:
+            raise ValueError(f"Ligne {line_number}: valeur non numérique") from error
 
-    image_paths = [
-        p for p in images_root.rglob("*")
-        if p.is_file()
-        and p.suffix.lower() in IMAGE_EXTENSIONS
-    ]
+        if class_id < 0:
+            raise ValueError(f"Ligne {line_number}: identifiant de classe négatif")
+        if not (0 <= x <= 1 and 0 <= y <= 1 and 0 < w <= 1 and 0 < h <= 1):
+            raise ValueError(f"Ligne {line_number}: coordonnées hors de [0, 1]")
+        if x - w / 2 < -1e-6 or x + w / 2 > 1 + 1e-6:
+            raise ValueError(f"Ligne {line_number}: boîte hors des limites horizontales")
+        if y - h / 2 < -1e-6 or y + h / 2 > 1 + 1e-6:
+            raise ValueError(f"Ligne {line_number}: boîte hors des limites verticales")
+        objects.append((class_id, x, y, w, h))
 
-    label_paths = list(labels_root.rglob("*.txt"))
-
-    image_keys = {
-        p.relative_to(images_root).with_suffix("").as_posix()
-        for p in image_paths
-    }
-
-    label_keys = {
-        p.relative_to(labels_root).with_suffix("").as_posix()
-        for p in label_paths
-    }
-
-    missing_labels = sorted(image_keys - label_keys)
-    orphan_labels = sorted(label_keys - image_keys)
-
-    return {
-        "image_count": len(image_paths),
-        "label_count": len(label_paths),
-        "missing_labels": missing_labels,
-        "orphan_labels": orphan_labels,
-    }
+    return objects

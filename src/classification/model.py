@@ -11,22 +11,16 @@ def build_googlenet(
     trainable_base: bool = True,
     learning_rate: float = 1e-5,
 ):
-    """
-    Construit GoogLeNet (Inception-v1) préentraîné
-    avec Fine-Tuning pour la classification des IRM.
-    """
 
     if num_classes < 2:
         raise ValueError(
             "num_classes doit être supérieur ou égal à 2."
         )
 
-    # Télécharger GoogLeNet préentraîné sur ImageNet
     model_path = kagglehub.model_download(
         "google/inception-v1/tensorFlow2/feature-vector/1"
     )
 
-    # Backbone GoogLeNet avec Fine-Tuning
     base_model = hub.KerasLayer(
         model_path,
         trainable=trainable_base,

@@ -1,7 +1,7 @@
 task: detect
 mode: train
 model: yolov8n.pt
-data: C:\Users\errak\Desktop\BrainTumorDetectionAI\data\processed\detection\data.yaml
+data: /workspace/BrainTumorDetectionAI/data/processed/detection/data.yaml
 epochs: 50
 time: null
 patience: 15
@@ -10,9 +10,9 @@ imgsz: 512
 save: true
 save_period: -1
 cache: false
-device: cpu
+device: '0'
 workers: 0
-project: C:\Users\errak\Desktop\BrainTumorDetectionAI\artifacts\detection
+project: /workspace/BrainTumorDetectionAI/artifacts/detection
 name: yolov8_brain_tumor
 exist_ok: true
 pretrained: true
@@ -111,4 +111,4 @@ auto_augment: randaugment
 erasing: 0.4
 cfg: null
 tracker: tracktrack.yaml
-save_dir: C:\Users\errak\Desktop\BrainTumorDetectionAI\artifacts\detection\yolov8_brain_tumor
+save_dir: /workspace/BrainTumorDetectionAI/artifacts/detection/yolov8_brain_tumor
